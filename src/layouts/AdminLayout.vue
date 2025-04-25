@@ -19,7 +19,7 @@ export default {
   },
   data: () => ({
     drawer: true,
-    pageTitle: 'Admin Dashboard'
-  })
+    pageTitle: "Admin Dashboard",
+  }),
 };
 </script>

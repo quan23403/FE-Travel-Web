@@ -6,8 +6,12 @@ import TravelDetail from "@/view/TravelDetail.vue";
 import HomePageLayout from "@/layouts/HomePageLayout.vue";
 import AdminDashboard from "@/view/AdminDashboard.vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
-import TourManagement from "@/view/TourManagement.vue";
+import TourManagement from "@/view/AddTour.vue";
+import ScheduleList from "@/components/AdminPage/Schedule/ScheduleList.vue";
 import TravelPaymentPage from "@/components/PaymentPage/TravelPaymentPage.vue";
+import BookingTour from "@/components/AdminPage/BookingTour/BookingTour.vue";
+import ListTour from "@/view/ListTour.vue";
+import EditTour from "@/view/EditTour.vue";
 // Định nghĩa các route
 const routes = [
   {
@@ -15,8 +19,8 @@ const routes = [
     component: HomePageLayout,
     children: [
       { path: "", component: HomepageView },
-      { path: "tour/:id", component: TravelDetail },
-      { path: "tour/payment", component: TravelPaymentPage},
+      { path: "tour/:id", component: TravelDetail},
+      { path: "payment/:scheduleId", name:"payment",component: TravelPaymentPage},
     ],
   },
   {
@@ -28,8 +32,26 @@ const routes = [
         component: AdminDashboard,
       },
       {
-        path: "tour",
+        path: "tour/add",
+        name: "addTour",
         component: TourManagement,
+      },
+      {
+        path: "bookings",
+        component: BookingTour,
+      },
+      {
+        path: "schedules",
+        component: ScheduleList,
+      },
+      {
+        path: "tour",
+        component: ListTour,
+      },
+      {
+        path: "tour/:id",
+        name: "editTour",
+        component: EditTour,
       },
     ],
   },
@@ -38,7 +60,15 @@ const routes = [
 // Tạo router instance
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes, // Các route
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // Nếu có savedPosition (ví dụ khi sử dụng nút back hoặc forward), sử dụng nó
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      // Cuộn trang về đầu
+      return { top: 0 };
+    }
+  }
 });
-
 export default router;
