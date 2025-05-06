@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch, computed, onMounted } from "vue";
+import { ref, defineProps, defineEmits, watch } from "vue";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 

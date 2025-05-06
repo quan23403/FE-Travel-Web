@@ -17,7 +17,7 @@ import { defineProps } from "vue";
 // Nhận "itinerary" từ props truyền vào
 const props = defineProps({
   itinerary: {
-    type: Array,
+    type: Object,
     required: true,
   },
 });

@@ -74,6 +74,12 @@
           {{ isRegister ? "Sign Up" : "Sign In" }}
         </v-btn>
 
+        <!-- Google Sign In Button -->
+        <v-btn v-if="!isRegister" block class="mt-4" @click="handleGoogleLogin">
+          <v-icon left>mdi-google</v-icon>
+          Sign in with Google
+        </v-btn>
+
         <!-- Toggle Mode Button -->
         <v-btn text @click="toggleMode" class="mt-2">
           {{
@@ -90,6 +96,7 @@
 <script setup>
 import { ref, defineEmits } from "vue";
 import { login, register } from "@/api/api";
+import { getUrlLoginWithGoogle } from "@/api/api";
 
 const emit = defineEmits(["authSuccess"]);
 const email = ref("");
@@ -134,14 +141,22 @@ const handleAuth = async () => {
         password: password.value,
       });
       console.log("Login successful:", response.data);
-
-      // Save user data (e.g., JWT token) to localStorage or sessionStorage
       emit("authSuccess", response.data); // Emit event to parent component
-      // Redirect to dashboard or home page after successful login
     }
   } catch (error) {
     console.error("Authentication error:", error);
     alert("Authentication failed. Please try again.");
+  }
+};
+
+const handleGoogleLogin = async () => {
+  try {
+    const response = await getUrlLoginWithGoogle();
+    console.log(response.data);
+    window.location.href = response.data;
+  } catch (error) {
+    console.error("Login with Google", error);
+    alert(error.response?.data?.message || "Login with Google failed");
   }
 };
 </script>

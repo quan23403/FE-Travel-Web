@@ -55,35 +55,43 @@
         <v-card-title>Add New Schedule</v-card-title>
         <v-card-text>
           <v-select
-            :items="schedules"
-            item-title="tourName"
-            item-value="tourId"
+            :items="tours"
+            item-title="name"
+            item-value="id"
             label="Tour Name"
+            variant="outlined"
             @update:modelValue="onTourSelected"
           />
+          <v-date-input
+            v-model="newSchedule.startDate"
+            label="Start Date"
+            prepend-icon=""
+            variant="outlined"
+            persistent-placeholder
+            multiple
+            :min="minDate"
+          ></v-date-input>
           <v-text-field
             v-model="newSchedule.startLocation"
             label="Start Location"
+            variant="outlined"
           />
           <v-text-field
             v-model="newSchedule.endLocation"
             label="End Location"
+            variant="outlined"
           />
           <v-text-field
-            v-model="newSchedule.startDate"
-            label="Start Date"
-            type="date"
+            v-model="newSchedule.slot"
+            label="Slot"
+            type="number"
+            variant="outlined"
           />
           <v-text-field
-            v-model="newSchedule.endDate"
-            label="End Date"
-            type="date"
-          />
-          <v-text-field v-model="newSchedule.slot" label="Slot" type="number" />
-          <v-text-field
-            v-model="newSchedule.basePrice"
+            v-model="newSchedule.price"
             label="Price"
             type="number"
+            variant="outlined"
           />
         </v-card-text>
         <v-card-actions>
@@ -124,7 +132,7 @@
           />
           <v-text-field
             v-model="selectedSchedule.basePrice"
-            label="Base Price"
+            label="Price"
             type="number"
           />
           <v-text-field
@@ -140,41 +148,19 @@
       </v-card>
     </v-dialog>
   </v-container>
+  <p>{{ newSchedule.startDate }}</p>
 </template>
 
 <script setup>
-import { ref } from "vue";
-
+import { onMounted, ref } from "vue";
+import { createSchedule } from "@/api/api"; // Import your API function
+import { getAllSchedules } from "@/api/api";
+import { getAllTours } from "@/api/api";
 // Dữ liệu và tiêu đề bảng
-const schedules = ref([
-  {
-    scheduleId: 7,
-    startDate: "2025-04-01",
-    endDate: "2025-04-04",
-    slot: 20,
-    tourName: "Adventure in Vietnam",
-    tourId: 4,
-    startLocation: "Hanoi",
-    endLocation: "Ho Chi Minh City",
-    thumbnailUrl: "",
-    basePrice: 500.0,
-    discount: 10.0,
-  },
-  {
-    scheduleId: 8,
-    startDate: "2025-04-01",
-    endDate: "2025-04-04",
-    slot: 20,
-    tourName: "Adventure in Hello",
-    tourId: 5,
-    startLocation: "Hanoi",
-    endLocation: "Ho Chi Minh City",
-    thumbnailUrl: "",
-    basePrice: 500.0,
-    discount: 10.0,
-  },
-]);
-
+const schedules = ref([]);
+const tours = ref([]);
+const today = new Date();
+const minDate = today.toISOString().substr(0, 10); // yyyy-mm-dd
 const headers = [
   { title: "ID", align: "start", key: "scheduleId" },
   { title: "Tour Name", align: "start", key: "tourName", sortable: true },
@@ -197,21 +183,53 @@ const newSchedule = ref({
   tourName: "",
   startLocation: "",
   endLocation: "",
-  startDate: "",
-  endDate: "",
+  startDate: [],
   slot: null,
+  tourId: null,
   basePrice: null,
   discount: null,
 });
 
 const selectedSchedule = ref({});
+const getAllSchedulesFunction = async () => {
+  try {
+    const response = await getAllSchedules();
+    schedules.value = response.data.data;
+  } catch (error) {
+    console.error("Error fetching schedules:", error);
+  }
+};
 
-// Các phương thức
+const getAllToursFunction = async () => {
+  try {
+    const response = await getAllTours();
+    tours.value = response.data.data;
+    console.log("Tours fetched:", tours.value);
+  } catch (error) {
+    console.error("Error fetching tours:", error);
+  }
+};
+
+onMounted(() => {
+  getAllSchedulesFunction();
+  getAllToursFunction();
+});
+
 const openAddDialog = () => {
   addDialog.value = true;
 };
 
 const closeAddDialog = () => {
+  newSchedule.value = {
+    tourName: "",
+    startLocation: "",
+    endLocation: "",
+    startDate: [],
+    slot: null,
+    tourId: null,
+    basePrice: null,
+    discount: null,
+  };
   addDialog.value = false;
 };
 
@@ -225,14 +243,40 @@ const closeEditDialog = () => {
 };
 
 const onTourSelected = (tourID) => {
-  const selectedTour = schedules.value.find((t) => t.tourId === tourID);
+  const selectedTour = tours.value.find((t) => t.id === tourID);
   if (selectedTour) {
+    newSchedule.value.tourId = selectedTour.tourId;
     newSchedule.value.startLocation = selectedTour.startLocation;
     newSchedule.value.endLocation = selectedTour.endLocation;
-    newSchedule.value.basePrice = selectedTour.basePrice;
-    newSchedule.value.discount = selectedTour.discount;
+    newSchedule.value.price =
+      selectedTour.basePrice * (1 - selectedTour.discount / 100);
+    newSchedule.value.slot = selectedTour.slot;
   }
 };
+
+const saveNewSchedule = async () => {
+  try {
+    const data = {
+      tourId: newSchedule.value.tourId,
+      startDate: newSchedule.value.startDate.map((d) => formatDate(d)),
+    };
+    console.log("New schedule data:", data);
+    const response = await createSchedule(data);
+    console.log("Schedule created:", response.data);
+    closeAddDialog();
+  } catch (error) {
+    console.error("Error creating schedule:", error);
+  }
+};
+
+// Hàm format date theo dạng yyyy/MM/dd
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const day = d.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 </script>
 
 <style scoped>

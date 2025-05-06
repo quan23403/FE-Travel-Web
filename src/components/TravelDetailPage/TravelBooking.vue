@@ -8,11 +8,6 @@
           <v-col cols="12">
             <div class="d-flex align-center">
               <span class="text-h6">Giá: </span>
-              <span class="text-h6 text-decoration-line-through ml-auto">
-                {{ formattedOriginalPrice }} đ / Khách
-              </span>
-            </div>
-            <div>
               <span class="text-h4 font-weight-bold red--text ml-2">
                 {{ formattedPrice }} đ / Khách
               </span>
@@ -91,6 +86,7 @@ import router from "@/router";
 const endDate = ref(null); // Lưu trữ ngày kết thúc
 const selectStartDate = ref(null); // Lưu trữ ngày khởi hành đã chọn
 const selectedSchedule = ref(null); // Lưu trữ thông tin schedule tương ứng
+const selectedPrice = ref(null); // Lưu trữ giá sau khi chọn lịch trình
 const props = defineProps({
   schedules: {
     type: Array,
@@ -115,7 +111,8 @@ const availableStartDates = computed(() => {
 });
 
 const selected = ref(null); // Lưu trữ thông tin schedule tương ứng
-// Cập nhật số lượng slot khi chọn ngày khởi hành
+
+// Cập nhật số lượng slot và giá khi chọn ngày khởi hành
 const updateSlot = () => {
   console.log("Selected start date:", selectStartDate.value);
   if (selectStartDate.value) {
@@ -124,28 +121,28 @@ const updateSlot = () => {
       (schedule) => schedule.startDate === selectStartDate.value
     );
 
-    // Nếu tìm thấy, gán selectedSchedule.value bằng slot của schedule
+    // Nếu tìm thấy, gán selectedSchedule.value bằng slot của schedule và giá tương ứng
     if (selected.value) {
       selectedSchedule.value = selected.value.slot;
       endDate.value = selected.value.endDate; // Cập nhật ngày kết thúc
+      selectedPrice.value = selected.value.price; // Cập nhật giá từ schedule
     }
   }
 };
 
 // Tính toán giá hiện tại và giá gốc
 const formattedPrice = computed(() => {
-  return new Intl.NumberFormat("vi-VN").format(props.price);
-});
-
-const formattedOriginalPrice = computed(() => {
-  return new Intl.NumberFormat("vi-VN").format(props.travelData.basePrice);
+  // Sử dụng giá từ selectedPrice nếu có, ngược lại dùng giá gốc từ prop
+  return new Intl.NumberFormat("vi-VN").format(
+    selectedPrice.value || props.price
+  );
 });
 
 const handleBooking = () => {
   if (selectStartDate.value && endDate.value) {
     // Truyền dữ liệu qua route params
     router.push({
-      name: 'payment', // Tên route thanh toán
+      name: "payment", // Tên route thanh toán
       params: {
         scheduleId: selected.value.id, // Truyền scheduleId qua route params
       },

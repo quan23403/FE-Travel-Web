@@ -62,8 +62,8 @@
             <!-- Nút thanh toán -->
             <v-row>
               <v-col cols="12">
-                <v-btn color="primary" block @click="handlePayment"
-                  >Thanh toán</v-btn
+                <v-btn color="primary" block @click="createBookingFunction">
+                  Thanh toán</v-btn
                 >
               </v-col>
             </v-row>
@@ -120,6 +120,7 @@
         </v-row>
       </v-card-text>
     </v-card>
+    <p>{{ formattedTotalPrice }}</p>
   </v-container>
 </template>
 
@@ -127,11 +128,17 @@
 import { useRoute } from "vue-router";
 import { ref, computed, onMounted } from "vue";
 import { getScheduleById } from "@/api/api";
+import { createBooking } from "@/api/api";
+import { initVnpayPayment } from "@/api/api";
 
 const route = useRoute();
 const travelData = ref({});
-const numberPeople = ref(1); // Số lượng người tham gia
-
+const numberPeople = ref(1);
+const customerEmail = ref("");
+const customerPhone = ref("");
+const customerAddress = ref("");
+const paymentMethod = ref("");
+const customerName = ref("");
 onMounted(() => {
   getScheduleByIdFunction(route.params.scheduleId);
 });
@@ -150,18 +157,59 @@ const getScheduleByIdFunction = async (scheduleId) => {
   }
 };
 
-const paymentMethods = ["Thẻ tín dụng", "PayPal", "Chuyển khoản ngân hàng"];
+const paymentMethods = ["CASH", "VNPAY"];
 
 // Tính toán tổng tiền thanh toán
 const formattedTotalPrice = computed(() => {
   return new Intl.NumberFormat("vi-VN").format(
-    travelData.value.basePrice * (1 - travelData.value.discount / 100)
+    travelData.value.price * numberPeople.value
   );
 });
 
+const createBookingFunction = async () => {
+  try {
+    const response = await createBooking({
+      scheduleId: route.params.scheduleId,
+      userName: customerName.value,
+      email: customerEmail.value,
+      phoneNumber: customerPhone.value,
+      address: customerAddress.value,
+      numberOfPeople: numberPeople.value,
+      paymentMethod: paymentMethod.value,
+    });
+    if (response && response.data && response.data.data) {
+      console.log("Booking created successfully:", response.data.data);
+
+      if (paymentMethod.value === "CASH") {
+        alert("Đặt tour thành công! Bạn có thể thanh toán khi đến.");
+        window.location.href = "/";
+      } else if (paymentMethod.value === "VNPAY") {
+        await handleVNPAYPayment(response.data.data);
+      }
+    } else {
+      console.error("Failed to create booking.");
+    }
+  } catch (error) {
+    console.error("Error creating booking:", error);
+  }
+};
+
 // Xử lý thanh toán
-const handlePayment = () => {
-  console.log("Thanh toán thành công với thông tin: ", {});
+const handleVNPAYPayment = async (bookingData) => {
+  try {
+    const response = await initVnpayPayment({
+      txnRef: bookingData.id,
+      amount: bookingData.totalPrice,
+    });
+    if (response && response.data && response.data.data) {
+      const vnpUrl = response.data.data.vnpUrl;
+      window.location.href = vnpUrl; // Chuyển hướng đến trang thanh toán VNPAY
+    } else {
+      console.error("Failed to initiate VNPAY payment.");
+    }
+  } catch (error) {
+    console.error("Error initiating VNPAY payment:", error);
+  }
 };
 </script>
 

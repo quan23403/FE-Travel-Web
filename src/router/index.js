@@ -12,6 +12,9 @@ import TravelPaymentPage from "@/components/PaymentPage/TravelPaymentPage.vue";
 import BookingTour from "@/components/AdminPage/BookingTour/BookingTour.vue";
 import ListTour from "@/view/ListTour.vue";
 import EditTour from "@/view/EditTour.vue";
+import PaymentVnpayResult from "@/components/PaymentPage/PaymentVnpayResult.vue";
+import CallBack from "@/components/AuthPage/CallBack.vue";
+import HistoryPage from "@/components/History/HistoryPage.vue";
 // Định nghĩa các route
 const routes = [
   {
@@ -21,6 +24,9 @@ const routes = [
       { path: "", component: HomepageView },
       { path: "tour/:id", component: TravelDetail},
       { path: "payment/:scheduleId", name:"payment",component: TravelPaymentPage},
+      {path: "payment/payment-callback", name:"paymentCallback", component: PaymentVnpayResult},
+      {path: "callback", name:"callback", component: CallBack},
+      {path: "history", name:"history", component: HistoryPage},
     ],
   },
   {

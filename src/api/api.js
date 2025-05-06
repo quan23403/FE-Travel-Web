@@ -36,6 +36,46 @@ export const updatedBooking = async (bookingId, bookingData) => {
     return await axiosInstance.put(`/api/bookings/${bookingId}`, bookingData);
 }
 
+export const createSchedule = async (scheduleData) => {
+    return await axiosInstance.post("/api/schedules", scheduleData);
+}
+
+export const getAllSchedules = async () => {
+    return await axiosInstance.get("/api/schedules");
+}
+
 export const getScheduleById = async (scheduleId) => {
     return await axiosInstance.get(`/api/schedules/${scheduleId}`);
+}
+
+export const createBooking = async (bookingData) => {
+    return await axiosInstance.post("/api/bookings", bookingData);
+}
+
+export const initVnpayPayment = async (vnpayPaymentData) => {
+    return await axiosInstance.post("/api/payment/initPayment", vnpayPaymentData);
+}
+
+export const getUrlLoginWithGoogle = async () => {
+    return await axiosInstance.get("/api/google/login-url");
+}
+
+export const callBackGoogle = async (code) => {
+    return await axiosInstance.get(`/api/google/callback?code=${code}`);
+}
+
+export const historyBooking = async () => {
+    return await axiosInstance.get(`/api/bookings/history`);
+}
+
+export const createFeedback = async (feedbackData) => {
+    return await axiosInstance.post(`/api/feedback`, feedbackData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+}
+
+export const getFeedbackByTourId = async (tourId) => {
+    return await axiosInstance.get(`/api/feedback/tour/${tourId}`);
 }

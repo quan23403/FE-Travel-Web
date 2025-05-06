@@ -38,8 +38,7 @@
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-avatar
-              img="user.avatar ||
-                  'https://vuetifyjs.b-cdn.net/docs/images/logos/v.png'"
+              :image="getAvatarUrl(user.avatar ?? 'default.png')"
               size="40"
               class="ms-auto"
               v-bind="props"
@@ -48,25 +47,17 @@
           </template>
           <v-list>
             <v-list-item @click="goToProfile">
-              <v-list-item-content>
-                <v-list-item-title>{{ user.email }}</v-list-item-title>
-                <v-list-item-title>{{ user.userName }}</v-list-item-title>
-              </v-list-item-content>
+              <v-list-item-title>{{ user.email }}</v-list-item-title>
+              <v-list-item-title>{{ user.userName }}</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToAccountSettings">
-              <v-list-item-content>
-                <v-list-item-title>Settings & Privacy</v-list-item-title>
-              </v-list-item-content>
+              <v-list-item-title>Settings & Privacy</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToHelpSupport">
-              <v-list-item-content>
-                <v-list-item-title>Help & Support</v-list-item-title>
-              </v-list-item-content>
+              <v-list-item-title>Help & Support</v-list-item-title>
             </v-list-item>
             <v-list-item @click="logout">
-              <v-list-item-content>
-                <v-list-item-title>Log Out</v-list-item-title>
-              </v-list-item-content>
+              <v-list-item-title>Log Out</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -81,16 +72,23 @@
 </template>
 
 <script setup>
-import { shallowRef, ref, computed } from "vue";
+import { shallowRef, ref, computed, onMounted } from "vue";
 import LoginClient from "./AuthPage/LoginClient.vue";
-import router from "@/router";
 
 const drawer = shallowRef(false);
 const loginDialog = ref(false);
 const items = ["Products", "Services", "About", "Contact"];
 
 const isLoggedIn = computed(() => {
-  return !!localStorage.getItem("accessToken"); // Kiểm tra nếu có accessToken trong localStorage
+  return !!localStorage.getItem("accessToken");
+});
+
+const updateLoginStatus = () => {
+  isLoggedIn.value = !!localStorage.getItem("accessToken");
+};
+
+onMounted(() => {
+  window.addEventListener("storage", updateLoginStatus);
 });
 
 // Lấy thông tin người dùng từ localStorage
@@ -102,8 +100,7 @@ const user = computed(() => {
 const logout = () => {
   localStorage.removeItem("user");
   localStorage.removeItem("accessToken");
-  // Handle logout (e.g., redirect, show message, etc.)
-  router.push("/");
+  window.location.reload();
   console.log("User logged out successfully");
 };
 
@@ -115,7 +112,19 @@ const handleAuthSuccess = (response) => {
   console.log("User authenticated successfully", response.data.user);
   localStorage.setItem("user", JSON.stringify(response.data.user));
   localStorage.setItem("accessToken", response.data.accessToken);
+  window.location.reload();
   loginDialog.value = false;
-  // Handle successful authentication (e.g., redirect, show message, etc.)
+};
+
+const getAvatarUrl = (filename) => {
+  // Kiểm tra nếu filename là URL (Google URL)
+  if (filename.startsWith("http") || filename.startsWith("https")) {
+    return filename; // Trả về URL từ Google mà không thay đổi
+  }
+
+  // Nếu là default.png, trả về ảnh mặc định
+  return filename === "default.png"
+    ? "https://vuetifyjs.b-cdn.net/docs/images/logos/v.png"
+    : `http://localhost:8080/upload/${filename}`;
 };
 </script>

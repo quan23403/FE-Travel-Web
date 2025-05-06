@@ -56,17 +56,24 @@
     <!-- Tour List - Replace v-slide-group with v-row and v-col -->
     <v-row>
       <v-col
-        v-for="destination in filteredDestinations"
+        v-for="destination in paginatedDestinations"
         :key="destination.id"
         cols="12"
         md="4"
         lg="3"
       >
-        <v-card class="tour-card" outlined @click="goToDetail(destination.id)">
+        <v-card
+          class="tour-card"
+          outlined
+          @click="goToDetail(destination.id)"
+          style="height: 80vh; display: flex; flex-direction: column"
+        >
           <v-img
-            :src="destination.thumbnail
+            :src="
+              destination.thumbnail
                 ? getThumbnailUrl(destination.thumbnail)
-                : 'https://via.placeholder.com/200'"
+                : 'https://via.placeholder.com/200'
+            "
             height="200"
             style="object-fit: cover"
           ></v-img>
@@ -123,6 +130,17 @@
         </v-card>
       </v-col>
     </v-row>
+    <!-- Pagination -->
+    <v-row justify="center">
+      <v-col cols="auto">
+        <v-pagination
+          v-model="currentPage"
+          :length="totalPages"
+          :items-per-page="itemsPerPage"
+          :total-visible="7"
+        />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -139,8 +157,10 @@ const selectedEndLocation = ref(null);
 const selectedDate = ref(null);
 const menu = ref(false);
 
-// Sample locations for filter (replace with real data)
-const locations = ["Hanoi", "Ho Chi Minh", "Da Nang", "Hue"];
+const currentPage = ref(1);
+const itemsPerPage = ref(8);
+
+const locations = ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"];
 
 // Fetch data from API
 const fetchDestinations = async () => {
@@ -177,7 +197,7 @@ const filteredDestinations = computed(() => {
   return destinations.value.filter((destination) => {
     const matchesSearch = destination.name
       .toLowerCase()
-      .includes(searchQuery.value.toLowerCase());
+      .includes((searchQuery.value || "").toLowerCase());
     const matchesStartLocation =
       !selectedStartLocation.value ||
       destination.startLocation === selectedStartLocation.value;
@@ -190,6 +210,18 @@ const filteredDestinations = computed(() => {
       matchesSearch && matchesStartLocation && matchesEndLocation && matchesDate
     );
   });
+});
+
+// Calculate paginated destinations based on current page and items per page
+const paginatedDestinations = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredDestinations.value.slice(start, end);
+});
+
+// Total pages calculation
+const totalPages = computed(() => {
+  return Math.ceil(filteredDestinations.value.length / itemsPerPage.value);
 });
 
 onMounted(() => {

@@ -4,7 +4,7 @@ import 'vuetify/styles'
 import { VDateInput } from 'vuetify/labs/VDateInput'
 import { VFileUpload } from 'vuetify/lib/labs/VFileUpload'
 import { VFileUploadItem } from 'vuetify/lib/labs/VFileUpload'
-import { VListItem } from 'vuetify/lib/components/index.mjs'
+import { VList } from 'vuetify/lib/components'
 // Vuetify
 import { createVuetify } from 'vuetify'
 
@@ -14,6 +14,6 @@ export default createVuetify({
     VDateInput,
     VFileUpload,
     VFileUploadItem,
-    VListItem,
+    VList,
   },
 })

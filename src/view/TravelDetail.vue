@@ -20,7 +20,7 @@
       </v-col>
       <v-col cols="12">
         <TravelFaq :faqs="travelData.faqs"/>
-        <TravelReviews :reviews="travelData.reviews" />
+        <TravelReviews :reviews="travelReviews" />
       </v-col>
     </v-row>
   </v-container>
@@ -36,14 +36,29 @@ import TravelBooking from "@/components/TravelDetailPage/TravelBooking.vue";
 import { getTourById } from "@/api/api";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import { getFeedbackByTourId } from "@/api/api";
 const route = useRoute();
 const travelData = ref({});
-
+const travelReviews = ref({});
 onMounted(() => {
   const tourId = route.params.id;
   getTourDetails(tourId);
+  getFeedback(tourId);
 });
 
+const getFeedback = async (tourId) => {
+  try {
+    const response = await getFeedbackByTourId(tourId);
+    if (response && response.data) {
+      travelReviews.value = response.data.data; // Assuming the API returns the data in this format
+      console.log("Reviews fetched successfully:", travelReviews.value);
+    } else {
+      console.error("No reviews found for the given tour ID.");
+    }
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+  }
+};
 const getTourDetails = async (tourId) => {
   try {
     const response = await getTourById(tourId);
