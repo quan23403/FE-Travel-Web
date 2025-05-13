@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="faq-container">
     <h1 class="text-h4 text-center mb-8">CÂU HỎI THƯỜNG GẶP (FAQ)</h1>
-    
+
     <!-- Sử dụng Expansion Panels để hiển thị câu hỏi và câu trả lời -->
     <v-expansion-panels class="faq-panels">
       <v-expansion-panel v-for="(item, index) in faqs" :key="index">
@@ -9,7 +9,7 @@
           {{ item.question }}
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          {{ item.answer }}
+          <div v-html="item.answer"></div>
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -21,7 +21,8 @@ import { ref, defineProps } from "vue";
 const props = defineProps({
   faqs: {
     type: Array,
-    default: () => [],},
+    default: () => [],
+  },
 });
 // Dữ liệu câu hỏi thường gặp
 </script>

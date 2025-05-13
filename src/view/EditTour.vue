@@ -37,9 +37,7 @@
         <!-- Bước 2: Thêm hình ảnh -->
         <v-stepper-window-item :value="1">
           <v-card flat>
-            <images-tour 
-            :images="tour.images"
-            @sendFiles="handleFileUpload" />
+            <images-tour :images="tour.images" @sendFiles="handleFileUpload" />
             <v-stepper-actions @click:prev="step--" @click:next="step++" />
           </v-card>
         </v-stepper-window-item>
@@ -71,29 +69,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineProps, toRaw } from "vue";
 import GeneralInfo from "@/components/AdminPage/TourManagementAdmin/AddTour/GeneralInfo.vue";
 import ImagesTour from "@/components/AdminPage/TourManagementAdmin/AddTour/ImagesTour.vue";
 import ScheduleDetails from "@/components/AdminPage/TourManagementAdmin/AddTour/ScheduleDetails.vue";
 import QnA from "@/components/AdminPage/TourManagementAdmin/AddTour/QnA.vue";
 import { uploadImageTours } from "@/api/api";
-import { createTour } from "@/api/api";
+import { updateTour } from "@/api/api";
+import { getTourById } from "@/api/api";
 const step = ref(0);
 // Dữ liệu để lưu trữ các tệp đã tải lên
 const uploadedFiles = ref([]);
+const props = defineProps({
+  selectedTour: {
+    type: Object,
+    required: true,
+  },
+});
+
 const tour = ref({
   tourInfo: {
-    name: "Test",
-    startLocation: "Test",
-    endLocation: "Test",
-    duration: null,
-    basePrice: 1000,
-    description: null,
-    travelType: "Test",
-    level: null,
-    discount: 10,
-    maxGroupSize: 100,
+    name: "",
+    startLocation: "",
+    endLocation: "",
+    duration: "",
+    basePrice: "",
+    description: "",
+    travelType: "",
+    level: "",
+    discount: "",
+    maxGroupSize: "",
     thumbnail: null,
+    tags: [],
   },
   schedules: [],
   images: [],
@@ -113,6 +120,7 @@ const setTourData = (data) => {
   tour.value.tourInfo.discount = data.discount;
   tour.value.tourInfo.maxGroupSize = data.maxGroupSize;
   tour.value.tourInfo.thumbnail = data.thumbnailUrl;
+  tour.value.tourInfo.tags = data.tags.split(",").map(tag => tag.trim());
 
   // Chuyển các lịch trình vào schedules
   tour.value.schedules = data.schedules.map((schedule) => ({
@@ -145,106 +153,31 @@ const setTourData = (data) => {
   }));
 };
 
-// Giả sử bạn đã nhận được response từ API
-const apiResponse = {
-  status: "success",
-  message: "Tour found",
-  data: {
-    id: 20,
-    name: "Test",
-    startLocation: "Test",
-    endLocation: "Test",
-    thumbnailUrl: "thumbnails/HoangMinhQuan.jpg",
-    duration: "DURATION_3N2D",
-    basePrice: 1000.0,
-    description: "<p>AA</p>",
-    travelType: "Test",
-    level: "MEDIUM",
-    status: null,
-    rating: null,
-    discount: 10.0,
-    maxGroupSize: 100,
-    createdAt: "2025-04-06T23:34:06.578522",
-    updatedAt: "2025-04-06T23:34:07.875957",
-    createdBy: null,
-    updatedBy: null,
-    schedules: [
-      {
-        id: 40,
-        startDate: "2025-04-09",
-        endDate: "2025-04-12",
-        slot: 100,
-      },
-      {
-        id: 41,
-        startDate: "2025-04-10",
-        endDate: "2025-04-13",
-        slot: 100,
-      },
-      {
-        id: 42,
-        startDate: "2025-04-11",
-        endDate: "2025-04-14",
-        slot: 100,
-      },
-    ],
-    itineraries: [
-      {
-        id: 31,
-        dayNumber: 1,
-        title: "A",
-        description: "<p>A</p>",
-      },
-    ],
-    faqs: [
-      {
-        id: 31,
-        question: "A",
-        answer: "<p>A</p>",
-      },
-    ],
-    imageTours: [
-      {
-        id: 39,
-        path: "details/HoangMinhQuan.jpg",
-        imageName: "HoangMinhQuan.jpg",
-      },
-      {
-        id: 40,
-        path: "details/HoangMinhQuan.png",
-        imageName: "HoangMinhQuan.png",
-      },
-    ],
-  },
-};
-
 // Gọi hàm để chuyển dữ liệu API vào tour
 onMounted(() => {
-  const tourData = apiResponse.data; // Lấy dữ liệu từ response
-  console.log("Tour data:", tourData);
-  setTourData(tourData);
+  console.log(props.selectedTour);
+  const tourId = props.selectedTour.id; // Lấy tourId từ props
+  getTourByIdFunction(tourId); // Gọi hàm để lấy dữ liệu tour
 });
 
+const getTourByIdFunction = async (tourId) => {
+  try {
+    const response = await getTourById(tourId);
+    if (response.status === 200) {
+      const tourData = response.data.data;
+      setTourData(tourData);
+    } else {
+      console.error("Error fetching tour data:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error fetching tour data:", error);
+  }
+};
 // Hàm xử lý khi nhận sự kiện update:tourInfo từ component con
 const handleTourInfoUpdate = (updatedTourInfo) => {
   console.log("Tour info updated:", updatedTourInfo);
   tour.value.tourInfo = updatedTourInfo;
   console.log("Tour info:", tour.value.tourInfo);
-};
-
-const handleScheduleUpdate = (schedule) => {
-  console.log("Schedule info updated:", schedule);
-  // Cập nhật giá trị tourInfo trong component cha
-  const formattedSchedule = schedule.map((date) => {
-    const formattedDate = new Date(date);
-    const year = formattedDate.getFullYear();
-    const month = String(formattedDate.getMonth() + 1).padStart(2, "0"); // Thêm số 0 vào tháng nếu < 10
-    const day = String(formattedDate.getDate()).padStart(2, "0"); // Thêm số 0 vào ngày nếu < 10
-
-    return { startDate: `${year}-${month}-${day}` };
-  });
-  tour.value.schedules = formattedSchedule;
-  console.log("Tour info:", tour.value.schedules);
 };
 
 const handleItineraryUpdate = (itinerary) => {
@@ -263,9 +196,9 @@ const handleFileUpload = (files) => {
 
 const submitForm = async () => {
   try {
-    const response = await createTour(tour.value);
-    alert("Form submitted successfully!");
-    await uploadImageFunction(response.data.id);
+    const response = await updateTour(props.selectedTour.id, tour.value);
+    alert("Tour updated successfully!");
+    await uploadImageFunction(response.data.data.id);
   } catch (error) {
     console.error("There was an error submitting the form:", error);
     alert("Failed to submit the form. Please try again.");

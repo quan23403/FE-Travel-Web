@@ -50,8 +50,8 @@
               <v-list-item-title>{{ user.email }}</v-list-item-title>
               <v-list-item-title>{{ user.userName }}</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="goToAccountSettings">
-              <v-list-item-title>Settings & Privacy</v-list-item-title>
+            <v-list-item @click="goToBookingHistory">
+              <v-list-item-title>Booking đã đặt</v-list-item-title>
             </v-list-item>
             <v-list-item @click="goToHelpSupport">
               <v-list-item-title>Help & Support</v-list-item-title>
@@ -74,6 +74,7 @@
 <script setup>
 import { shallowRef, ref, computed, onMounted } from "vue";
 import LoginClient from "./AuthPage/LoginClient.vue";
+import router from "@/router";
 
 const drawer = shallowRef(false);
 const loginDialog = ref(false);
@@ -114,6 +115,10 @@ const handleAuthSuccess = (response) => {
   localStorage.setItem("accessToken", response.data.accessToken);
   window.location.reload();
   loginDialog.value = false;
+};
+
+const goToBookingHistory = () => {
+  router.push("/history");
 };
 
 const getAvatarUrl = (filename) => {

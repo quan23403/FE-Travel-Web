@@ -53,14 +53,13 @@
       </v-col>
     </v-row>
 
-    <!-- Tour List - Replace v-slide-group with v-row and v-col -->
     <v-row>
       <v-col
         v-for="destination in paginatedDestinations"
         :key="destination.id"
         cols="12"
         md="4"
-        lg="3"
+        lg="4"
       >
         <v-card
           class="tour-card"
@@ -75,13 +74,14 @@
                 : 'https://via.placeholder.com/200'
             "
             height="200"
+            width="100%"
             style="object-fit: cover"
           ></v-img>
 
           <!-- Card Content -->
           <v-card-title>
             <v-row>
-              <v-col cols="12" class="text-h6">
+              <v-col cols="12" class="text-h6 name-wrap">
                 {{ destination.name }}
               </v-col>
               <v-col cols="12" class="text-subtitle-2">
@@ -125,7 +125,10 @@
                 </v-chip>
               </v-col>
             </v-row>
-            <p v-html="destination.description"></p>
+            <div
+              v-html="getShortDescription(destination.description)"
+              class="description-ellipsis"
+            ></div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -158,7 +161,7 @@ const selectedDate = ref(null);
 const menu = ref(false);
 
 const currentPage = ref(1);
-const itemsPerPage = ref(8);
+const itemsPerPage = ref(6);
 
 const locations = ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"];
 
@@ -224,25 +227,32 @@ const totalPages = computed(() => {
   return Math.ceil(filteredDestinations.value.length / itemsPerPage.value);
 });
 
+const getShortDescription = (description) => {
+  const maxLength = 100; // Số ký tự muốn hiển thị
+  if (!description) return ""; // Nếu không có mô tả, trả về chuỗi rỗng
+
+  // Cắt chuỗi đến vị trí maxLength
+  let shortDescription = description.slice(0, maxLength);
+
+  // Nếu phần tử bị cắt giữa chừng, tìm khoảng trắng gần nhất để không cắt giữa từ
+  if (shortDescription.length === maxLength) {
+    shortDescription =
+      shortDescription.substring(0, shortDescription.lastIndexOf(" ")) +
+      " [....]";
+  }
+
+  return shortDescription;
+};
+
 onMounted(() => {
   fetchDestinations();
 });
 </script>
 
 <style scoped>
-.auth-card {
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .v-btn {
   font-weight: bold;
   border-radius: 8px;
-}
-
-.v-text-field {
-  margin-bottom: 16px !important;
 }
 
 .v-card-title {
@@ -250,11 +260,30 @@ onMounted(() => {
   font-size: 22px;
 }
 
-.v-divider {
-  margin: 10px 0;
+.v-row {
+  margin-bottom: 5px;
 }
 
-.v-row {
-  margin-bottom: 20px;
+.name-wrap {
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.description-ellipsis {
+  text-align: justify;
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  overflow: hidden;
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.tour-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Đảm bảo thẻ card có chiều cao đầy đủ */
 }
 </style>

@@ -88,6 +88,32 @@
         />
       </v-col>
 
+      <v-col cols="12">
+        <div>
+          <v-chip-group multiple column>
+            <v-chip
+              v-for="(tag, index) in localTourInfo.tags"
+              :key="index"
+              class="ma-1"
+              close
+              @click:close="removeTag(index)"
+            >
+              {{ tag }}
+            </v-chip>
+          </v-chip-group>
+        </div>
+      </v-col>
+
+      <!-- Thêm trường tags -->
+      <v-col cols="12">
+        <v-text-field
+          v-model="localTourInfo.tags"
+          label="Tags (nhập tags cách nhau bởi dấu phẩy)"
+          hint="Ví dụ: biển, núi cao"
+          @input="formatTags"
+        />
+      </v-col>
+
       <!-- Ảnh thumbnail -->
       <v-col cols="12">
         <v-file-input
@@ -107,6 +133,8 @@
       </v-col>
     </v-row>
   </v-card-text>
+  <p>{{ localTourInfo.tags }}</p>
+  {{ localTourInfo }}
 </template>
 
 <script setup>
@@ -161,6 +189,12 @@ const onFileChange = () => {
 
   localTourInfo.value.thumbnail = file.value;
   reader.readAsDataURL(file.value);
+};
+
+const formatTags = () => {
+  // Tách chuỗi tags theo dấu phẩy, loại bỏ khoảng trắng và chuyển thành mảng
+  localTourInfo.value.tags = localTourInfo.value.tags
+    .split(",");                          // Tách chuỗi theo dấu phẩy
 };
 
 const editorOptions = {

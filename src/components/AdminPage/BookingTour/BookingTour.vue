@@ -6,7 +6,7 @@
         <v-card>
           <v-card-title> Booking Tour </v-card-title>
           <!-- Bảng hiển thị danh sách booking -->
-          <v-data-table
+          <!-- <v-data-table
             :headers="headers"
             :items="bookings"
             item-key="id"
@@ -17,7 +17,23 @@
                 mdi-pencil
               </v-icon>
             </template>
-          </v-data-table>
+          </v-data-table> -->
+
+          <v-data-table-server
+            :items-per-page="itemsPerPage"
+            :headers="headers"
+            :items="bookings"
+            :items-length="totalItems"
+            :loading="loading"
+            :page="pageNumber"
+            @update:options="loadBookings"
+          >
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-icon small class="mr-2" @click="editBooking(item)">
+                mdi-pencil
+              </v-icon>
+            </template>
+          </v-data-table-server>
         </v-card>
       </v-col>
     </v-row>
@@ -51,6 +67,22 @@
               />
             </v-col>
             <v-col cols="12" md="6">
+              <v-text-field
+                label="Number of People"
+                v-model="editedBooking.numberOfPeople"
+                type="number"
+                disabled
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-select
+                label="Status"
+                v-model="editedBooking.totalPrice"
+                :items="statusOptions"
+                dense
+              />
+            </v-col>
+            <v-col cols="12" md="6">
               <v-select
                 label="Status"
                 v-model="editedBooking.status"
@@ -74,36 +106,51 @@ import { ref, reactive } from "vue";
 import { getAllBookings } from "@/api/api";
 import { updatedBooking } from "@/api/api";
 
-// Khởi tạo dữ liệu ban đầu theo input đã cho
 const bookings = ref([]);
+const totalItems = ref(0); // Total number of items
+const itemsPerPageLocal = ref(10); // Number of items per page
+const pageNumber = ref(1); // Current page number
+const loading = ref(false);
 
-// Lấy danh sách booking từ API
-const getAllBookingsFunction = async () => {
+const loadBookings = async ({ page, itemsPerPage }) => {
   try {
-    const response = await getAllBookings();
-    bookings.value = response.data.data.map((item) => ({
+    pageNumber.value = page;
+    itemsPerPageLocal.value = itemsPerPage;
+    console.log("page", pageNumber.value);
+    console.log("itemsPerPage", itemsPerPageLocal.value);
+
+    loading.value = true;
+
+    const response = await getAllBookings(page - 1, itemsPerPage);
+
+    bookings.value = response.data.data.content.map((item) => ({
       ...item,
       createdAt: formatDate(item.createdAt),
       updatedAt: formatDate(item.updatedAt),
     }));
+    totalItems.value = response.data.data.totalElements; // Total number of items
   } catch (error) {
     console.error("Error fetching bookings:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
-getAllBookingsFunction();
+loadBookings({ page: 1, itemsPerPage: 10 });
 
 // Định nghĩa headers cho bảng hiển thị
 const headers = [
   { title: "ID", value: "id" },
   { title: "User Name", value: "userName" },
+  { title: "Phone", value: "phoneNumber" },
   { title: "Tour Name", value: "tourName" },
   { title: "Booking Date", value: "bookingDate" },
   { title: "Total Price", value: "totalPrice" },
-  { title: "Number of People", value: "numberOfPeople" },
+  { title: "Group size", value: "numberOfPeople" },
   { title: "Created At", value: "createdAt" },
-  { title: "Updated At", value: "updatedAt" },
   { title: "Status", value: "status" },
+  { title: "Payment Method", value: "paymentMethod" },
+  { title: "Payment Status", value: "paymentStatus" },
   { title: "Actions", value: "actions", sortable: false },
 ];
 
@@ -148,10 +195,14 @@ function confirmChange() {
 // Lưu booking (cập nhật)
 function saveBooking() {
   updatedBooking(editedBooking.id, {
-    ...editedBooking,
+    bookingId: editedBooking.id,
+    bookingStatus: editedBooking.status,
   })
     .then(() => {
-      getAllBookingsFunction(); // Cập nhật danh sách booking sau khi lưu
+      loadBookings({
+        page: pageNumber.value,
+        itemsPerPage: itemsPerPageLocal.value,
+      }); // Cập nhật danh sách booking sau khi lưu
       closeDialog(); // Đóng dialog sau khi lưu
     })
     .catch((error) => {

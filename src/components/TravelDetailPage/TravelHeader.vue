@@ -6,10 +6,8 @@
       <div class="text-h6 text-uppercase font-weight-medium mt-2">
         CẤP ĐỘ - {{ level }}
       </div>
-    </v-container>
 
-    <!-- Carousel -->
-    <v-container>
+      <!-- Carousel -->
       <v-carousel
         v-if="fullImages.length > 0"
         cycle

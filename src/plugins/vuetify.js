@@ -5,6 +5,7 @@ import { VDateInput } from 'vuetify/labs/VDateInput'
 import { VFileUpload } from 'vuetify/lib/labs/VFileUpload'
 import { VFileUploadItem } from 'vuetify/lib/labs/VFileUpload'
 import { VList } from 'vuetify/lib/components'
+import { VDataTableServer } from 'vuetify/lib/components'
 // Vuetify
 import { createVuetify } from 'vuetify'
 
@@ -15,5 +16,6 @@ export default createVuetify({
     VFileUpload,
     VFileUploadItem,
     VList,
+    VDataTableServer
   },
 })

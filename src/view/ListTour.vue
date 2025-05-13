@@ -46,11 +46,11 @@
     </v-data-table>
 
     <!-- Popup chỉnh sửa -->
-    <v-dialog v-model="editDialog" max-width="600">
+    <v-dialog v-model="editDialog" max-width="80%">
       <v-card>
         <v-card-title class="text-h6">Chỉnh sửa Tour</v-card-title>
         <v-card-text>
-          <EditTour :tour="selectedTour" />
+          <EditTour :selectedTour="selectedTour" />
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -97,12 +97,6 @@ const headers = [
 const router = useRouter();
 const goToAddTourPage = () => {
   router.push({ name: "addTour" });
-};
-
-// Xử lý khi nhấn nút "Sửa"
-const editTour = (id) => {
-  console.log("Chỉnh sửa tour với ID:", id);
-  router.push({ name: "editTour", params: { id: id } });
 };
 
 // Xử lý khi nhấn nút "Xóa"

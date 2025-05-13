@@ -63,7 +63,7 @@ export default {
   data: () => ({
     drawer: false,
     menuItems: [
-      { title: "Bảng điều khiển", icon: "mdi-view-dashboard", route: "/admin" },
+      { title: "Báo cáo", icon: "mdi-chart-bar", route: "/admin" },
       {
         title: "Đặt chỗ",
         icon: "mdi-calendar-check",
@@ -75,11 +75,10 @@ export default {
         route: "/admin/tour",
       },
       {
-        title: "Khách hàng",
+        title: "Người dùng",
         icon: "mdi-account-group",
-        route: "/admin/customers",
+        route: "/admin/users",
       },
-      { title: "Báo cáo", icon: "mdi-chart-bar", route: "/admin/reports" },
       {
         title: "Lịch trình",
         icon: "mdi-calendar-clock",

@@ -16,7 +16,7 @@
         <!-- Add a label for the Quill editor -->
         <v-col :cols="12">
           <quill-editor
-            v-model:content="item.description"
+            v-model:content="item.answer"
             contentType="html"
             :options="editorOptions"
             :style="{ height: '200px' }"

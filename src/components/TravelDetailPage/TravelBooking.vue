@@ -9,7 +9,7 @@
             <div class="d-flex align-center">
               <span class="text-h6">Giá: </span>
               <span class="text-h4 font-weight-bold red--text ml-2">
-                {{ formattedPrice }} đ / Khách
+                {{ formattedPrice }} đ
               </span>
             </div>
           </v-col>
@@ -77,7 +77,6 @@
       </v-card-text>
     </v-card>
   </v-container>
-  <p>{{ selected }}</p>
 </template>
 
 <script setup>

@@ -31,6 +31,9 @@
           <template v-slot:[`item.slot`]="{ item }">
             <span>{{ item.slot }}</span>
           </template>
+          <template v-slot:[`item.available`]="{ item }">
+            <span>{{ item.available }}</span>
+          </template>
           <template v-slot:[`item.basePrice`]="{ item }">
             <span>${{ item.basePrice }}</span>
           </template>
@@ -38,9 +41,6 @@
             <span>{{ item.discount }}%</span>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon @click="openEditDialog(item)" class="mr-2" color="primary">
-              mdi-pencil
-            </v-icon>
             <v-icon @click="deleteSchedule(item.id)" color="red">
               mdi-delete
             </v-icon>
@@ -102,7 +102,7 @@
     </v-dialog>
 
     <!-- Dialog to Edit Schedule -->
-    <v-dialog v-model="editDialog" max-width="500px">
+    <!-- <v-dialog v-model="editDialog" max-width="500px">
       <v-card>
         <v-card-title>Edit Schedule</v-card-title>
         <v-card-text>
@@ -146,9 +146,9 @@
           <v-btn color="red" text @click="closeEditDialog">Cancel</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
   </v-container>
-  <p>{{ newSchedule.startDate }}</p>
+  <p>{{ newSchedule }}</p>
 </template>
 
 <script setup>
@@ -169,8 +169,9 @@ const headers = [
   { title: "Start Date", align: "start", key: "startDate" },
   { title: "End Date", align: "start", key: "endDate" },
   { title: "Slot", align: "start", key: "slot" },
+  { title: "Available", align: "start", key: "available" },
   { title: "Base Price", align: "start", key: "basePrice" },
-  { title: "Discount", align: "start", key: "discount" },
+  { title: "Discount", align: "center", key: "discount" },
   { title: "Actions", align: "center", key: "actions" },
 ];
 
@@ -245,7 +246,7 @@ const closeEditDialog = () => {
 const onTourSelected = (tourID) => {
   const selectedTour = tours.value.find((t) => t.id === tourID);
   if (selectedTour) {
-    newSchedule.value.tourId = selectedTour.tourId;
+    newSchedule.value.tourId = selectedTour.id;
     newSchedule.value.startLocation = selectedTour.startLocation;
     newSchedule.value.endLocation = selectedTour.endLocation;
     newSchedule.value.price =
@@ -259,6 +260,7 @@ const saveNewSchedule = async () => {
     const data = {
       tourId: newSchedule.value.tourId,
       startDate: newSchedule.value.startDate.map((d) => formatDate(d)),
+      slot: newSchedule.value.slot,
     };
     console.log("New schedule data:", data);
     const response = await createSchedule(data);

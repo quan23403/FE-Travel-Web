@@ -12,6 +12,10 @@ export const createTour = async (tourData) => {
     return await axiosInstance.post("/api/tour", tourData);
 }
 
+export const updateTour = async (tourId, tourData) => {
+    return await axiosInstance.post(`/api/tour/${tourId}`, tourData);
+}
+
 export const uploadImageTours = async (imageData, tourId) => {
     return await axiosInstance.post(`/api/uploadFile/${tourId}`, imageData, {
         headers: {
@@ -28,8 +32,13 @@ export const getTourById = async (tourId) => {
     return await axiosInstance.get(`/api/tour/${tourId}`);
 }
 
-export const getAllBookings = async () => {
-    return await axiosInstance.get("/api/bookings");
+export const getAllBookings = async (pageNumber, pageSize) => {
+    return await axiosInstance.get("/api/bookings", {
+            params: {
+                pageNumber: pageNumber,
+                pageSize: pageSize,
+            }
+        });
 }
 
 export const updatedBooking = async (bookingId, bookingData) => {
@@ -78,4 +87,16 @@ export const createFeedback = async (feedbackData) => {
 
 export const getFeedbackByTourId = async (tourId) => {
     return await axiosInstance.get(`/api/feedback/tour/${tourId}`);
+}
+
+export const getAllUsers = async () => {
+    return await axiosInstance.get("/api/users");
+}
+
+export const updateUser = async (userId, userData) => {
+    return await axiosInstance.put(`/api/users/${userId}`, userData);
+}
+
+export const createUserByAdmin = async (userData) => {
+    return await axiosInstance.post("/api/users/by-admin", userData);
 }

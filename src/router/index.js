@@ -15,6 +15,7 @@ import EditTour from "@/view/EditTour.vue";
 import PaymentVnpayResult from "@/components/PaymentPage/PaymentVnpayResult.vue";
 import CallBack from "@/components/AuthPage/CallBack.vue";
 import HistoryPage from "@/components/History/HistoryPage.vue";
+import UserManagement from "@/components/AdminPage/UserManagement/UserManagement.vue";
 // Định nghĩa các route
 const routes = [
   {
@@ -23,7 +24,7 @@ const routes = [
     children: [
       { path: "", component: HomepageView },
       { path: "tour/:id", component: TravelDetail},
-      { path: "payment/:scheduleId", name:"payment",component: TravelPaymentPage},
+      { path: "payment/:scheduleId", name:"payment", component: TravelPaymentPage},
       {path: "payment/payment-callback", name:"paymentCallback", component: PaymentVnpayResult},
       {path: "callback", name:"callback", component: CallBack},
       {path: "history", name:"history", component: HistoryPage},
@@ -34,7 +35,7 @@ const routes = [
     component: AdminLayout,
     children: [
       {
-        path: "dashboard",
+        path: "",
         component: AdminDashboard,
       },
       {
@@ -58,6 +59,11 @@ const routes = [
         path: "tour/:id",
         name: "editTour",
         component: EditTour,
+      },
+      {
+        path: "users",
+        name: "userManagement",
+        component: UserManagement,
       },
     ],
   },

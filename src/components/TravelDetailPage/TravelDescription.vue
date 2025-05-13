@@ -1,6 +1,6 @@
 <template>
   <v-card class="mb-4">
-    <v-card-title>About this trip</v-card-title>
+    <v-card-title>Mô tả chuyến đi</v-card-title>
     <v-card-text>
       <div class="text-body-1" v-html="description"></div>
     </v-card-text>

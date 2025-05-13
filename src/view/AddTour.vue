@@ -92,6 +92,7 @@ const tour = ref({
     discount: 10,
     maxGroupSize: 100,
     thumbnail: null,
+    tags: [],
   },
   images: [],
   itinerary: [],
