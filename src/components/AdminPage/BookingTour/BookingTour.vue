@@ -76,10 +76,10 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-select
-                label="Status"
+                label="Total Price"
                 v-model="editedBooking.totalPrice"
-                :items="statusOptions"
-                dense
+                type="number"
+                disabled
               />
             </v-col>
             <v-col cols="12" md="6">

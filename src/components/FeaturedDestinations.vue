@@ -1,59 +1,42 @@
 <template>
   <v-container class="my-16">
-    <!-- Title -->
-    <h1 class="text-h3 text-center mb-8">FAVORITE DESTINATION</h1>
-
     <!-- Filter Section -->
     <v-row class="mb-4" justify="center">
       <v-col cols="12" md="3">
         <v-text-field
           v-model="searchQuery"
-          label="Search by destination"
+          label="Tìm kiếm"
           prepend-icon="mdi-magnify"
           clearable
         />
       </v-col>
       <v-col cols="12" md="3">
-        <v-select
+        <v-autocomplete
           v-model="selectedStartLocation"
           :items="locations"
-          label="Start Location"
+          label="Điếm xuất phát"
           clearable
         />
       </v-col>
       <v-col cols="12" md="3">
-        <v-select
+        <v-autocomplete
           v-model="selectedEndLocation"
           :items="locations"
-          label="End Location"
+          label="Điểm đến"
           clearable
         />
       </v-col>
       <v-col cols="12" md="3">
-        <v-menu
-          v-model="menu"
-          :close-on-content-click="false"
-          transition="slide-x-reverse-transition"
-        >
-          <template #activator="{ on, attrs }">
-            <v-text-field
-              v-model="selectedDate"
-              label="Select Date"
-              prepend-icon="mdi-calendar"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-            />
-          </template>
-          <v-date-picker
-            v-model="selectedDate"
-            @input="menu = false"
-          ></v-date-picker>
-        </v-menu>
+        <v-autocomplete
+          v-model="selectedTravelType"
+          :items="travelTypes"
+          label="Loại hình du lịch"
+          clearable
+        />
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row id="topElement">
       <v-col
         v-for="destination in paginatedDestinations"
         :key="destination.id"
@@ -95,13 +78,12 @@
           <v-card-text>
             <v-row>
               <v-col cols="6">
-                <strong>Start:</strong> {{ destination.startLocation }}
+                <strong>Xuất phát:</strong> {{ destination.startLocation }}
               </v-col>
               <v-col cols="6">
-                <strong>End:</strong> {{ destination.endLocation }}
+                <strong>Điểm đến:</strong> {{ destination.endLocation }}
               </v-col>
             </v-row>
-
             <!-- Price and Description -->
             <v-row>
               <v-col cols="8" class="text-h5 font-weight-bold text-red">
@@ -129,6 +111,26 @@
               v-html="getShortDescription(destination.description)"
               class="description-ellipsis"
             ></div>
+            <v-row>
+              <v-col class="d-flex align-center" cols="auto">
+                <span>
+                  {{
+                    destination.rating === 0
+                      ? "Chưa có đánh giá"
+                      : destination.rating
+                  }}
+                </span>
+                <v-rating
+                  v-model="destination.rating"
+                  :length="5"
+                  :readonly="true"
+                  half-increments
+                  size="20"
+                  color="amber"
+                  class="ml-1 mb-1"
+                ></v-rating>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
@@ -141,6 +143,7 @@
           :length="totalPages"
           :items-per-page="itemsPerPage"
           :total-visible="7"
+          @update:modelValue="scrollToElement"
         />
       </v-col>
     </v-row>
@@ -151,19 +154,36 @@
 import { ref, computed, onMounted } from "vue";
 import router from "@/router";
 import { getAllTours } from "@/api/api";
-
 // Data of destinations
 const destinations = ref([]);
 const searchQuery = ref("");
 const selectedStartLocation = ref(null);
 const selectedEndLocation = ref(null);
 const selectedDate = ref(null);
-const menu = ref(false);
-
 const currentPage = ref(1);
 const itemsPerPage = ref(6);
 
-const locations = ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"];
+const locations = [
+  "Hà Nội",
+  "TP Hồ Chí Minh",
+  "Đà Nẵng",
+  "Huế",
+  "Nha Trang",
+  "Sa Pa",
+  "Phú Quốc",
+  "Cần Thơ",
+  "Hạ Long",
+  "Đà Lạt",
+  "Hội An",
+  "Vũng Tàu",
+  "Mũi Né",
+  "Ninh Bình",
+  "Quy Nhơn",
+  "Hà Giang",
+  "Đồng Nai",
+  "Bình Thuận",
+  "Gia Lai",
+];
 
 // Fetch data from API
 const fetchDestinations = async () => {
@@ -195,7 +215,6 @@ const goToDetail = (id) => {
   router.push(`/tour/${id}`);
 };
 
-// Filter destinations based on search query and selected filters
 const filteredDestinations = computed(() => {
   return destinations.value.filter((destination) => {
     const matchesSearch = destination.name
@@ -207,15 +226,19 @@ const filteredDestinations = computed(() => {
     const matchesEndLocation =
       !selectedEndLocation.value ||
       destination.endLocation === selectedEndLocation.value;
-    const matchesDate =
-      !selectedDate.value || destination.date === selectedDate.value;
+    const matchesTravelType =
+      !selectedTravelType.value ||
+      destination.type === selectedTravelType.value;
+
     return (
-      matchesSearch && matchesStartLocation && matchesEndLocation && matchesDate
+      matchesSearch &&
+      matchesStartLocation &&
+      matchesEndLocation &&
+      matchesTravelType
     );
   });
 });
 
-// Calculate paginated destinations based on current page and items per page
 const paginatedDestinations = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
@@ -242,6 +265,29 @@ const getShortDescription = (description) => {
   }
 
   return shortDescription;
+};
+
+const selectedTravelType = ref(null);
+const travelTypes = [
+  "Trekking",
+  "Camping",
+  "Cultural",
+  "Beach",
+  "Relaxation",
+  "Family",
+  "Business",
+  "Romantic",
+  "Historical",
+];
+
+const scrollToElement = () => {
+  const element = document.getElementById("topElement");
+  if (element) {
+    element.scrollIntoView({
+      behavior: "smooth", // Cuộn mượt mà
+      block: "start", // Cuộn đến đầu phần tử
+    });
+  }
 };
 
 onMounted(() => {

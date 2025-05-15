@@ -139,6 +139,13 @@ const customerPhone = ref("");
 const customerAddress = ref("");
 const paymentMethod = ref("");
 const customerName = ref("");
+const user = JSON.parse(localStorage.getItem("user"));
+if (user) {
+  customerName.value = user.userName;
+  customerEmail.value = user.email;
+  customerPhone.value = user.phone;
+  customerAddress.value = user.address;
+}
 onMounted(() => {
   getScheduleByIdFunction(route.params.scheduleId);
 });

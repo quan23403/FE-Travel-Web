@@ -27,15 +27,13 @@ export default {
 </script>
 
 <style scoped>
-/* Ensure the layout uses full height of the screen */
 .v-app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Make sure the container fills the entire viewport height */
+  min-height: 100vh;
 }
 
-/* Main content area should take the remaining space */
 .main-content {
-  flex: 1; /* Makes this section take up the remaining space */
+  flex-grow: 1;
 }
 </style>

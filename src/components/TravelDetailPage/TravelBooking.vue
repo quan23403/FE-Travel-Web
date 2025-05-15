@@ -122,7 +122,7 @@ const updateSlot = () => {
 
     // Nếu tìm thấy, gán selectedSchedule.value bằng slot của schedule và giá tương ứng
     if (selected.value) {
-      selectedSchedule.value = selected.value.slot;
+      selectedSchedule.value = selected.value.available;
       endDate.value = selected.value.endDate; // Cập nhật ngày kết thúc
       selectedPrice.value = selected.value.price; // Cập nhật giá từ schedule
     }

@@ -119,7 +119,6 @@ const toggleMode = () => {
   isRegister.value = !isRegister.value;
 };
 
-// Handle Registration or Login
 const handleAuth = async () => {
   try {
     if (isRegister.value) {
@@ -131,7 +130,7 @@ const handleAuth = async () => {
       };
       // Call Register API
       const response = await register(userData);
-      console.log("Registration successful:", response.data);
+      console.log("Registration successful:", response.data.data);
       alert("Registration successful. Please log in.");
       toggleMode(); // Switch to Login mode after successful registration
     } else {
@@ -140,8 +139,8 @@ const handleAuth = async () => {
         email: email.value,
         password: password.value,
       });
-      console.log("Login successful:", response.data);
-      emit("authSuccess", response.data); // Emit event to parent component
+      console.log("Login successful:", response.data.data);
+      emit("authSuccess", response.data.data); // Emit event to parent component
     }
   } catch (error) {
     console.error("Authentication error:", error);

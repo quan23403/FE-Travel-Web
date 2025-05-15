@@ -100,3 +100,7 @@ export const updateUser = async (userId, userData) => {
 export const createUserByAdmin = async (userData) => {
     return await axiosInstance.post("/api/users/by-admin", userData);
 }
+
+export const topBookings = async () => {
+    return await axiosInstance.get("/api/tour/top-bookings");
+}

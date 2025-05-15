@@ -50,7 +50,8 @@
               <v-card-actions>
                 <!-- Kiểm tra nếu ngày startDate đã qua thì hiển thị nút Để lại đánh giá -->
                 <v-btn
-                  v-if="isBookingPast(booking.startDate)"
+                  v-if="isBookingPast(booking.startDate, booking.status)"
+                  v-bind:disabled="booking.status !== 'CONFIRMED'"
                   color="primary"
                   @click="openReviewDialog(booking)"
                 >
@@ -134,10 +135,10 @@ const formattedTotalPrice = (totalPrice) => {
 };
 
 // Hàm kiểm tra xem ngày khởi hành đã qua chưa
-const isBookingPast = (startDate) => {
+const isBookingPast = (startDate, status) => {
   const currentDate = new Date();
   const start = new Date(startDate);
-  return start < currentDate;
+  return start < currentDate && status === 'CONFIRMED';
 };
 
 // Hàm mở dialog để đánh giá

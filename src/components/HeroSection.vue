@@ -29,25 +29,6 @@
           ratione debitis quis est labore voluptatibus! Eaque cupiditate minima,
           at placeat totam!
         </div>
-
-        <div class="d-flex ga-4 justify-center">
-          <v-btn
-            class="text-none"
-            color="primary"
-            flat
-            rounded="lg"
-            text="Get started"
-          />
-
-          <v-btn
-            color="primary"
-            append-icon="mdi-chevron-right"
-            class="text-none"
-            flat
-            rounded="lg"
-            text="Learn more"
-          />
-        </div>
       </div>
 
       <div class="v-bg position-absolute top-0 right-0 left-0 bottom-0">

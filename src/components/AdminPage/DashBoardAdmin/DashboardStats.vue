@@ -31,10 +31,7 @@
   </v-row>
 </template>
 
-<script>
-export default {
-  name: "DashboardStats",
-};
+<script setup>
 </script>
 
 <style scoped>

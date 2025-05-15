@@ -1,10 +1,5 @@
 <template>
-  <df-messenger
-    intent="WELCOME"
-    chat-title="TravelBot"
-    agent-id="f1dabf45-14a8-4e33-b6a6-f26b3c73464e"
-    language-code="en"
-  ></df-messenger>
+<p></p>
 </template>
 
 <script>

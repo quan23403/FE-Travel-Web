@@ -9,25 +9,26 @@
     <v-btn icon>
       <v-icon>mdi-bell</v-icon>
     </v-btn>
-    <v-menu offset-y>
-      <template v-slot:activator="{ attrs }">
-        <v-btn icon v-bind="attrs">
-          <v-avatar size="32">
-            <v-img
-              src="https://cdn.vuetifyjs.com/images/john.jpg"
-              alt="Admin"
-            ></v-img>
-          </v-avatar>
-        </v-btn>
+    <v-menu>
+      <template v-slot:activator="{ props }">
+        <v-avatar
+          size="32"
+          class="ms-auto"
+          v-bind="props"
+          :image="getAvatarUrl(user.avatar ?? 'default.png')"
+        ></v-avatar>
       </template>
       <v-list>
-        <v-list-item @click="() => {}">
-          <v-list-item-title>Hồ sơ</v-list-item-title>
+        <v-list-item
+          @click="
+            () => {
+              router.push('/');
+            }
+          "
+        >
+          <v-list-item-title>Trang Chủ</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="() => {}">
-          <v-list-item-title>Cài đặt</v-list-item-title>
-        </v-list-item>
-        <v-list-item @click="() => {}">
+        <v-list-item @click="logout()">
           <v-list-item-title>Đăng xuất</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -37,7 +38,7 @@
   <v-navigation-drawer v-model="drawer" app>
     <v-list dense nav>
       <v-list-item
-        v-for="item in menuItems"
+        v-for="item in filteredMenuItems"
         :key="item.title"
         :to="item.route"
         link
@@ -51,42 +52,70 @@
   </v-navigation-drawer>
 </template>
 
-<script>
-export default {
-  name: "HeaderAdmin",
-  props: {
-    title: {
-      type: String,
-      default: "Admin Dashboard",
-    },
+<script setup>
+import { ref, defineProps } from "vue";
+import router from "@/router";
+const props = defineProps({
+  title: {
+    type: String,
+    default: "Admin Dashboard",
   },
-  data: () => ({
-    drawer: false,
-    menuItems: [
-      { title: "Báo cáo", icon: "mdi-chart-bar", route: "/admin" },
-      {
-        title: "Đặt chỗ",
-        icon: "mdi-calendar-check",
-        route: "/admin/bookings",
-      },
-      {
-        title: "Danh sách Tour",
-        icon: "mdi-map-marker",
-        route: "/admin/tour",
-      },
-      {
-        title: "Người dùng",
-        icon: "mdi-account-group",
-        route: "/admin/users",
-      },
-      {
-        title: "Lịch trình",
-        icon: "mdi-calendar-clock",
-        route: "/admin/schedules",
-      },
+});
 
-      { title: "Cài đặt", icon: "mdi-cog", route: "/admin/settings" },
-    ],
-  }),
+const drawer = ref(false);
+
+const menuItems = [
+  {
+    title: "Báo cáo",
+    icon: "mdi-chart-bar",
+    route: "/admin/dashboard",
+    roles: ["ADMIN", "EMPLOYEE", "TOUR_GUIDE"],
+  },
+  {
+    title: "Đặt chỗ",
+    icon: "mdi-calendar-check",
+    route: "/admin/bookings",
+    roles: ["ADMIN", "EMPLOYEE"],
+  },
+  {
+    title: "Danh sách Tour",
+    icon: "mdi-map-marker",
+    route: "/admin/tour",
+    roles: ["ADMIN", "EMPLOYEE", "TOUR_GUIDE"],
+  },
+  {
+    title: "Người dùng",
+    icon: "mdi-account-group",
+    route: "/admin/users",
+    roles: ["ADMIN"],
+  },
+  {
+    title: "Lịch trình",
+    icon: "mdi-calendar-clock",
+    route: "/admin/schedules",
+    roles: ["ADMIN", "EMPLOYEE", "TOUR_GUIDE"],
+  },
+];
+
+const getAvatarUrl = (filename) => {
+  if (filename.startsWith("http") || filename.startsWith("https")) {
+    return filename;
+  }
+
+  // Nếu là default.png, trả về ảnh mặc định
+  return filename === "default.png"
+    ? "https://vuetifyjs.b-cdn.net/docs/images/logos/v.png"
+    : `http://localhost:8080/upload/${filename}`;
 };
+
+const logout = () => {
+  localStorage.removeItem("user");
+  localStorage.removeItem("accessToken");
+  router.push("/");
+};
+const user = JSON.parse(localStorage.getItem("user")) || {};
+
+const filteredMenuItems = menuItems.filter((item) =>
+  item.roles.some((role) => user.roles.includes(role))
+);
 </script>

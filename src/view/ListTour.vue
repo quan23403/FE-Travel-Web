@@ -9,8 +9,10 @@
 
     <!-- Nút Thêm Tour -->
     <v-row>
-      <v-col cols="12" class="d-flex justify-end">
-        <v-btn color="primary" @click="goToAddTourPage">Thêm Tour</v-btn>
+      <v-col>
+        <v-btn color="primary" class="mb-4" @click="goToAddTourPage">
+          <v-icon>mdi-plus</v-icon>Thêm Tour</v-btn
+        >
       </v-col>
     </v-row>
 

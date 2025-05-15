@@ -1,7 +1,13 @@
 <template>
   <v-navigation-drawer v-model="drawer" color="primary" disable-resize-watcher>
-    <v-list nav>
-      <v-list-item v-for="item in items" :key="item" link :title="item" />
+    <v-list>
+      <v-list-item
+        v-for="(item, index) in items"
+        :key="index"
+        :to="item.route"
+        link
+        :title="item.title"
+      />
     </v-list>
   </v-navigation-drawer>
 
@@ -14,11 +20,21 @@
     </template>
 
     <div class="d-flex flex-1-1-0 ps-md-4">
-      <v-avatar image="https://vuetifyjs.b-cdn.net/docs/images/logos/v.png" />
+      <v-btn @click="gotoHomePage">
+        <v-avatar image="https://vuetifyjs.b-cdn.net/docs/images/logos/v.png" />
+      </v-btn>
     </div>
 
     <div class="d-md-flex d-none ga-4 mx-auto">
-      <v-btn v-for="item in items" :key="item" class="text-none" :text="item" />
+      <v-btn
+        v-for="item in items"
+        :key="item.title"
+        class="text-none"
+        text
+        :to="item.route"
+      >
+        {{ item.title }}
+      </v-btn>
     </div>
 
     <div class="d-flex flex-1-1-0 pe-3">
@@ -46,18 +62,21 @@
             </v-avatar>
           </template>
           <v-list>
-            <v-list-item @click="goToProfile">
+            <v-list-item>
               <v-list-item-title>{{ user.email }}</v-list-item-title>
               <v-list-item-title>{{ user.userName }}</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="goToBookingHistory">
-              <v-list-item-title>Booking đã đặt</v-list-item-title>
+            <v-list-item
+              @click="() => router.push('/admin')"
+              v-if="canAccessAdmin()"
+            >
+              <v-list-item-title>Admin Dashboard</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="goToHelpSupport">
-              <v-list-item-title>Help & Support</v-list-item-title>
+            <v-list-item @click="goToBookingHistory">
+              <v-list-item-title>Lịch sử đặt tour</v-list-item-title>
             </v-list-item>
             <v-list-item @click="logout">
-              <v-list-item-title>Log Out</v-list-item-title>
+              <v-list-item-title>Đăng Xuất</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -78,14 +97,20 @@ import router from "@/router";
 
 const drawer = shallowRef(false);
 const loginDialog = ref(false);
-const items = ["Products", "Services", "About", "Contact"];
+const items = [
+  { title: "Services", route: "/services" },
+  { title: "About", route: "/about" },
+  { title: "Contact", route: "/contact" },
+];
 
-const isLoggedIn = computed(() => {
-  return !!localStorage.getItem("accessToken");
-});
+const isLoggedIn = ref(!!localStorage.getItem("accessToken"));
 
 const updateLoginStatus = () => {
   isLoggedIn.value = !!localStorage.getItem("accessToken");
+};
+
+const gotoHomePage = () => {
+  router.push("/");
 };
 
 onMounted(() => {
@@ -101,7 +126,8 @@ const user = computed(() => {
 const logout = () => {
   localStorage.removeItem("user");
   localStorage.removeItem("accessToken");
-  window.location.reload();
+  isLoggedIn.value = false;
+  router.push("/");
   console.log("User logged out successfully");
 };
 
@@ -110,10 +136,12 @@ const openLoginRegister = () => {
   loginDialog.value = true;
 };
 const handleAuthSuccess = (response) => {
-  console.log("User authenticated successfully", response.data.user);
-  localStorage.setItem("user", JSON.stringify(response.data.user));
-  localStorage.setItem("accessToken", response.data.accessToken);
-  window.location.reload();
+  console.log("User authenticated successfully", response.user);
+  console.log("Access token:", response.accessToken);
+  localStorage.setItem("user", JSON.stringify(response.user));
+  localStorage.setItem("accessToken", response.accessToken);
+  // window.location.reload();
+  isLoggedIn.value = true;
   loginDialog.value = false;
 };
 
@@ -122,14 +150,20 @@ const goToBookingHistory = () => {
 };
 
 const getAvatarUrl = (filename) => {
-  // Kiểm tra nếu filename là URL (Google URL)
   if (filename.startsWith("http") || filename.startsWith("https")) {
-    return filename; // Trả về URL từ Google mà không thay đổi
+    return filename;
   }
 
   // Nếu là default.png, trả về ảnh mặc định
   return filename === "default.png"
     ? "https://vuetifyjs.b-cdn.net/docs/images/logos/v.png"
     : `http://localhost:8080/upload/${filename}`;
+};
+
+const canAccessAdmin = () => {
+  const allowedRoles = ["ADMIN", "EMPLOYEE", "TOUR_GUIDE"];
+  return (
+    user.value.roles && allowedRoles.some((r) => user.value.roles.includes(r))
+  );
 };
 </script>

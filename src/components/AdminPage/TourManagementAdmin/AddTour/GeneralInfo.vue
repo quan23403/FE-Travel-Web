@@ -8,17 +8,24 @@
 
       <!-- Địa điểm xuất phát & Điểm đến -->
       <v-col cols="6">
-        <v-text-field
+        <v-autocomplete
           v-model="localTourInfo.startLocation"
+          :items="locations"
           label="Điểm xuất phát"
+          clearable
+          searchable
           required
         />
       </v-col>
+
       <v-col cols="6">
-        <v-text-field
+        <v-autocomplete
           v-model="localTourInfo.endLocation"
+          :items="locations"
           label="Điểm đến"
           required
+          clearable
+          searchable
         />
       </v-col>
 
@@ -42,9 +49,12 @@
 
       <!-- Loại hình du lịch -->
       <v-col cols="12">
-        <v-text-field
+        <v-autocomplete
           v-model="localTourInfo.travelType"
+          :items="travelTypes"
           label="Loại hình du lịch"
+          searchable
+          clearable
           required
         />
       </v-col>
@@ -55,7 +65,7 @@
           v-model="localTourInfo.level"
           label="Cấp độ"
           :items="level"
-          required
+          clearable
         />
       </v-col>
 
@@ -133,8 +143,6 @@
       </v-col>
     </v-row>
   </v-card-text>
-  <p>{{ localTourInfo.tags }}</p>
-  {{ localTourInfo }}
 </template>
 
 <script setup>
@@ -150,18 +158,12 @@ const file = ref(null);
 const emit = defineEmits(["update:tourInfo", "update:schedules"]);
 const level = ["EASY", "MEDIUM", "HARD"];
 const duration = [
-  "DURATION_1N0D",
+  "DURATION_2N1D",
   "DURATION_3N2D",
   "DURATION_4N3D",
   "DURATION_5N4D",
   "DURATION_6N5D",
   "DURATION_7N6D",
-  "DURATION_8N7D",
-  "DURATION_9N8D",
-  "DURATION_10N9D",
-  "DURATION_11N10D",
-  "DURATION_12N11D",
-  "DURATION_13N12D",
 ];
 
 const localTourInfo = ref(props.tourInfo);
@@ -193,10 +195,42 @@ const onFileChange = () => {
 
 const formatTags = () => {
   // Tách chuỗi tags theo dấu phẩy, loại bỏ khoảng trắng và chuyển thành mảng
-  localTourInfo.value.tags = localTourInfo.value.tags
-    .split(",");                          // Tách chuỗi theo dấu phẩy
+  localTourInfo.value.tags = localTourInfo.value.tags.split(","); // Tách chuỗi theo dấu phẩy
 };
 
+const locations = [
+  "Hà Nội",
+  "TP Hồ Chí Minh",
+  "Đà Nẵng",
+  "Huế",
+  "Nha Trang",
+  "Sa Pa",
+  "Phú Quốc",
+  "Cần Thơ",
+  "Hạ Long",
+  "Đà Lạt",
+  "Hội An",
+  "Vũng Tàu",
+  "Mũi Né",
+  "Ninh Bình",
+  "Quy Nhơn",
+  "Hà Giang",
+  "Đồng Nai",
+  "Bình Thuận",
+  "Gia Lai",
+];
+
+const travelTypes = [
+  "Trekking",
+  "Camping",
+  "Cultural",
+  "Beach",
+  "Relaxation",
+  "Family",
+  "Business",
+  "Romantic",
+  "Historical",
+];
 const editorOptions = {
   theme: "snow",
   modules: {
